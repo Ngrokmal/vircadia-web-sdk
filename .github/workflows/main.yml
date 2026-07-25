@@ -31,7 +31,6 @@ jobs:
           if [ -f "index.html" ]; then
             cp index.html dist/
           fi
-          # Fallback HTML directly into dist if missing
           if [ ! -f "dist/index.html" ]; then
             echo '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Vircadia World</title></head><body><h2 style="text-align:center;margin-top:50px;">Vircadia World Loading...</h2></body></html>' > dist/index.html
           fi
@@ -40,7 +39,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -53,7 +52,7 @@ jobs:
           npx cap copy android
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon --no-build-cache
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
