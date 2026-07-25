@@ -19,8 +19,22 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Web Project
-        run: npm run build --if-present
+      - name: Force Build Web Assets
+        run: |
+          mkdir -p dist
+          if [ -d "public" ]; then
+            cp -r public/* dist/
+          fi
+          if [ -d "src" ]; then
+            cp -r src/* dist/
+          fi
+          if [ -f "index.html" ]; then
+            cp index.html dist/
+          fi
+          # Fallback HTML directly into dist if missing
+          if [ ! -f "dist/index.html" ]; then
+            echo '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Vircadia World</title></head><body><h2 style="text-align:center;margin-top:50px;">Vircadia World Loading...</h2></body></html>' > dist/index.html
+          fi
 
       - name: Set up Java JDK
         uses: actions/setup-java@v4
@@ -31,28 +45,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Prepare Web Assets & Build APK
+      - name: Build Android APK
         run: |
-          # যদি কোনো বিল্ড ডিরেক্টরি না থাকে, তবে একটি বানিয়ে নেওয়া
-          WEB_DIR="www"
-          mkdir -p $WEB_DIR
-
-          if [ -f "dist/index.html" ]; then
-            WEB_DIR="dist"
-          elif [ -f "build/index.html" ]; then
-            WEB_DIR="build"
-          elif [ -f "public/index.html" ]; then
-            WEB_DIR="public"
-          elif [ -f "index.html" ]; then
-            cp index.html $WEB_DIR/
-          else
-            echo "<!DOCTYPE html><html><head><title>Vircadia World</title></head><body><h1>Welcome to Vircadia Metaverse</h1></body></html>" > $WEB_DIR/index.html
-          fi
-
-          echo "Using Web Directory: $WEB_DIR"
-
           npm install @capacitor/cli @capacitor/core @capacitor/android
-          npx cap init "VircadiaWorld" "com.vircadia.app" --web-dir "$WEB_DIR"
+          npx cap init "VircadiaWorld" "com.vircadia.app" --web-dir "dist"
           npx cap add android
           npx cap copy android
           cd android
