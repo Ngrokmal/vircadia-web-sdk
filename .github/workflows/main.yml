@@ -31,10 +31,22 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build Android APK
+      - name: Determine Web Directory & Build Android APK
         run: |
+          # সঠিক ওয়েব বিল্ড ফোল্ডার খুঁজে বের করা
+          WEB_DIR="dist"
+          if [ -d "build" ] && [ -f "build/index.html" ]; then
+            WEB_DIR="build"
+          elif [ -d "public" ] && [ -f "public/index.html" ]; then
+            WEB_DIR="public"
+          elif [ -f "index.html" ]; then
+            WEB_DIR="."
+          fi
+
+          echo "Selected Web Directory: $WEB_DIR"
+
           npm install @capacitor/cli @capacitor/core @capacitor/android
-          npx cap init "VircadiaWorld" "com.vircadia.app" --web-dir dist
+          npx cap init "VircadiaWorld" "com.vircadia.app" --web-dir "$WEB_DIR"
           npx cap add android
           npx cap copy android
           cd android
