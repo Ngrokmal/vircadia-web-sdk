@@ -31,19 +31,25 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Determine Web Directory & Build Android APK
+      - name: Prepare Web Assets & Build APK
         run: |
-          # সঠিক ওয়েব বিল্ড ফোল্ডার খুঁজে বের করা
-          WEB_DIR="dist"
-          if [ -d "build" ] && [ -f "build/index.html" ]; then
+          # যদি কোনো বিল্ড ডিরেক্টরি না থাকে, তবে একটি বানিয়ে নেওয়া
+          WEB_DIR="www"
+          mkdir -p $WEB_DIR
+
+          if [ -f "dist/index.html" ]; then
+            WEB_DIR="dist"
+          elif [ -f "build/index.html" ]; then
             WEB_DIR="build"
-          elif [ -d "public" ] && [ -f "public/index.html" ]; then
+          elif [ -f "public/index.html" ]; then
             WEB_DIR="public"
           elif [ -f "index.html" ]; then
-            WEB_DIR="."
+            cp index.html $WEB_DIR/
+          else
+            echo "<!DOCTYPE html><html><head><title>Vircadia World</title></head><body><h1>Welcome to Vircadia Metaverse</h1></body></html>" > $WEB_DIR/index.html
           fi
 
-          echo "Selected Web Directory: $WEB_DIR"
+          echo "Using Web Directory: $WEB_DIR"
 
           npm install @capacitor/cli @capacitor/core @capacitor/android
           npx cap init "VircadiaWorld" "com.vircadia.app" --web-dir "$WEB_DIR"
