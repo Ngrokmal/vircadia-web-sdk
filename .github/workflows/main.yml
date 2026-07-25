@@ -1,7 +1,7 @@
 name: Build Android Webview APK
 
 on:
-  workflow_dispatch: # এটি আপনাকে Actions ট্যাব থেকে ম্যানুয়ালি Run করার বাটন দেবে
+  workflow_dispatch:
 
 jobs:
   build:
@@ -9,10 +9,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -23,13 +23,13 @@ jobs:
         run: npm run build
 
       - name: Set up Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
 
       - name: Build Android APK
         run: |
@@ -42,7 +42,7 @@ jobs:
           ./gradlew assembleDebug
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Vircadia-Test-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
