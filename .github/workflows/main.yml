@@ -1,4 +1,4 @@
-name: Build Vircadia 3D App APK
+name: Build Vircadia App APK
 
 on:
   workflow_dispatch:
@@ -16,32 +16,10 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Fetch Official Vircadia Web World Client
+      - name: Create Web Assets
         run: |
           mkdir -p dist
-          # Vircadia-র অফিসিয়াল ৩ডি ওয়েব অ্যাপ ক্লায়েন্ট সোর্স ডাউনলোড
-          curl -sL https://github.com/vircadia/vircadia-web-client/archive/refs/heads/master.tar.gz | tar -xz --strip-components=1 -C dist || true
-          
-          # ফাইল খালি থাকলে ব্যাকআপ মেটাভার্স ৩ডি ইন্টারফেস তৈরি
-          if [ ! -f "dist/index.html" ]; then
-            cat << 'EOF' > dist/index.html
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-                <title>Vircadia World</title>
-                <style>
-                    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #111; color: #fff; font-family: sans-serif; }
-                    #viewport { width: 100%; height: 100%; border: none; }
-                </style>
-            </head>
-            <body>
-                <iframe id="viewport" src="https://metaverse.vircadia.com/" allow="camera; microphone; display-capture; autoplay; accelerometer; gyroscope;"></iframe>
-            </body>
-            </html>
-            EOF
-          fi
+          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Vircadia World</title><style>body,html{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;}iframe{width:100%;height:100%;border:none;}</style></head><body><iframe src="https://vircadia.com/" allow="camera; microphone; display-capture; autoplay; accelerometer; gyroscope;"></iframe></body></html>' > dist/index.html
 
       - name: Set up Java JDK
         uses: actions/setup-java@v4
@@ -54,6 +32,7 @@ jobs:
 
       - name: Build Android APK
         run: |
+          npm init -y
           npm install @capacitor/cli@5 @capacitor/core@5 @capacitor/android@5
           npx cap init "VircadiaWorld" "com.vircadia.app" --web-dir "dist"
           npx cap add android
@@ -66,6 +45,6 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vircadia-3D-APK
+          name: Vircadia-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           
